@@ -19,3 +19,18 @@ p cnf 3 2
 1 -3 0
 2 3 -1 0 
 ```
+## Run
+
+```
+SAT -S2 sudoku_nr_10
+```
+
+## Work
+
+### DPLL algorithm
+
+#### Default
+
+#### Heuristic One
+
+#### Heuristic Two
