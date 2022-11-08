@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import random
-
+from copy import deepcopy
 
 ############### Utils #########################################################
 def is_literal_negated(literal):
@@ -21,16 +21,20 @@ def contains_empty_clause(set_of_clauses):
 ###############################################################################
 ############### 3. ############################################################
 def filter_out_tautologies(set_of_clauses):
+    filtered_set_of_clauses = []
     for clause in set_of_clauses:
-        for literal in clause:
+        clause_cloned = deepcopy(clause)
+        for literal in clause_cloned:
             negated_literal = get_negated_literal(literal)
             
-            # TODO: Question: Should we remove all occurrences of literal
-            # and negated_literal in this situation?)
-            if negated_literal in clause:
-                clause.remove(negated_literal)
-                clause.remove(literal)
-    return set_of_clauses
+            if negated_literal in clause_cloned:
+                while negated_literal in clause_cloned:
+                    clause_cloned.remove(negated_literal)
+                while literal in clause_cloned:
+                    clause_cloned.remove(literal)
+
+        filtered_set_of_clauses.append(clause_cloned)
+    return filtered_set_of_clauses
 
 ###############################################################################
 ############### 4. ############################################################
@@ -38,7 +42,26 @@ def filter_out_tautologies(set_of_clauses):
     This method has lateral effect on state variable
 """
 def set_variable_value(state, variable, value):
-    raise Exception("Not implemented yet!") 
+    if is_literal_negated(variable):
+        variable = get_negated_literal(variable)
+        value = True if value is False else True
+
+    
+    new_set_of_clauses = []
+    for clause in state["set_of_clauses"]:
+        negated_variable = get_negated_literal(variable)
+        if variable in clause:
+            continue
+        
+        if negated_variable in clause:
+            clause.remove(negated_variable)
+
+            if len(clause) != 0:
+                new_set_of_clauses.append(clause)
+
+    # Lateral effect !!!
+    state["variables"][variable] = value
+    state["set_of_clauses"] = new_set_of_clauses
 
 def find_literals_in_unit_clauses(set_of_clauses):
     literals_in_unit_clauses = []
@@ -91,9 +114,10 @@ def choose_variable(state, heuristic):
         return random.choice(list(not_assigned_variables.keys()))
     else:
         # TODO
-        return None
+        raise Exception("Not implemented yet!")
 
 def davis_putnam(state, heuristic = None):
+    print("state", state)
     set_of_clauses = state["set_of_clauses"]
     
     # 1. Satisfiability check
@@ -125,11 +149,13 @@ def davis_putnam(state, heuristic = None):
     # 6. Split
     variable = choose_variable(state, heuristic)
 
-    
-    if davis_putnam(set_variable_value(set_of_clauses, variable, True)):
+    cloned_state = deepcopy(state)
+    set_variable_value(cloned_state, variable, True)
+    if davis_putnam(cloned_state, heuristic):
         return True
     else:
-       return davis_putnam(set_variable_value(set_of_clauses, variable, False))
+        set_variable_value(state, variable, False)
+        return davis_putnam(state, heuristic)
 
 def get_initial_state(input_file):
     if input_file is None:
@@ -163,8 +189,7 @@ def main():
     state = get_initial_state(input_file) 
 
     # TODO write result to file
-    result = davis_putnam(state, heuristic)
-    
+    davis_putnam(state, heuristic)
 
 ############### Test ##########################################################
 def test_implementation():
@@ -183,10 +208,11 @@ def test_implementation():
         [],
     ]
     actual = filter_out_tautologies([
-        ["a", "~a", "b", "~d"],
+        ["a", "~a", "a", "b", "~d"],
         ["~a", "b", "~b", "c"],
         [],
     ])
+    
     assert actual == expected, "Error!"
 
     # Test `find_pure_literals` ###############################################
@@ -197,6 +223,44 @@ def test_implementation():
         [],
     ])
     assert actual == expected, "Error!"
+
+    # Test `find_literals_in_unit_clauses` ####################################
+    expected = ["d"]
+    actual = find_literals_in_unit_clauses([
+        ["a", "~a", "b", "~d"],
+        ["~a", "b", "~b", "c"],
+        ["d"],
+    ])
+    assert actual == expected, "Error!"
+
+    # Test `set_variable_value` ###############################################
+    initial_state = {
+        "variables": {
+            "a" : None,
+            "b" : None,
+            "c" : None,
+        },
+        "set_of_clauses": [
+            ["a", "b", "c"],
+            ["a", "~b"],
+            ["a", "~c"],
+            ["~a", "c"],
+        ],
+    }
+    
+    expected_state = {
+        "variables": {
+            "a" : True,
+            "b" : None,
+            "c" : None,
+        },
+        "set_of_clauses": [
+            ["c"],
+        ],
+    }
+
+    set_variable_value(initial_state, "a", True)
+    assert initial_state == expected_state, "Error!"
 
 ###############################################################################
 

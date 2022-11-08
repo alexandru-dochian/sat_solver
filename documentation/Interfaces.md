@@ -21,3 +21,6 @@
     }
 }
 ```
+
+# Heuristics brainstorm
+- [ ] Don't branch on literal that is not found in the knowledge base
