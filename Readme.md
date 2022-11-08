@@ -15,19 +15,9 @@ p cnf 3 2
 1 -3 0
 2 3 -1 0 
 ```
-## Run
-You are free to choose any programming language you fancy, but we must be able to run your SAT solver with the command SAT -Sn inputfile , for example: SAT -S2 sudoku_nr_10 , where SAT is the (compulsory) name of your program, n=1 for the basic DP and n=2 or 3 for your two other strategies, and the input file is the concatenation of all required input clauses (in your case: sudoku rules + given puzzle). 
-
-```
-SAT -S2 sudoku_nr_10
-```
 
 ## Work
 
-### DPLL algorithm
-
-#### Default
-
-#### Heuristic One
-
-#### Heuristic Two
+- [ ] DP algorithm
+- [ ] Heuristic 1
+- [ ] Heuristic 2
