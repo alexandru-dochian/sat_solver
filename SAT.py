@@ -253,8 +253,11 @@ def log():
     print("\nResult: " + "[Satisfiable]" if result == True else "[Unsatisfiable]")
 
     if result:
-        print_sudoku()
-
+        try:
+            print_sudoku()
+        except Exception:
+            pass
+        
 def parse_arguments():
     parser = argparse.ArgumentParser(prog='SAT', description="General purpose SAT solver")
     parser.add_argument("-S", dest = "strategy", type=int, help="1, 2 or 3. Defaults to 1")

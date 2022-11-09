@@ -1,5 +1,34 @@
 # Sat Solver
 
+
+## Data
+Inputs are found in `input` folder.
+
+## Run
+
+```
+$ ./SAT.py -h
+
+>    usage: SAT [-h] [-S STRATEGY] [input_file]
+>
+>    General purpose SAT solver
+>
+>    positional arguments:
+>    input_file
+>
+>    options:
+>    -h, --help   show this help message and exit
+>    -S STRATEGY  1, 2 or 3. Defaults to 1
+
+```
+
+---
+Example:
+```
+./SAT.py -S1 input/4x4/test0.in
+```
+
+
 ## Input file
 DIMACS CNF format
 
@@ -18,6 +47,6 @@ p cnf 3 2
 
 ## Work
 
-- [ ] DP algorithm
-- [ ] Heuristic 1
-- [ ] Heuristic 2
+ - [x] DP algorithm
+ - [ ] Heuristic 1
+ - [ ] Heuristic 2
