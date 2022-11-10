@@ -1,0 +1,8 @@
+documentation/**/*.log
+documentation/**/*.out
+logs/*
+None.out
+None.out.log
+
+# Exceptions
+!logs/oqAWmPMOiX.log

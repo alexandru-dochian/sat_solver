@@ -3,10 +3,15 @@
 import math
 import os
 
+def generate_sudoku_rules():
+    
+    pass
+
+
 """
     e.g. 
         sudoku_inline = "...3..4114..3..."
-        result = ['314', '423', '124', '131', '432', '341']
+        result = ['143', '234', '241', '311', '324', '413']
 """
 def from_sudoku_inline_to_clauses(sudoku_inline):
     sudoku_size = int(math.sqrt(len(sudoku_inline)))
@@ -18,16 +23,13 @@ def from_sudoku_inline_to_clauses(sudoku_inline):
             value_at_position = sudoku_inline[position_inline]
             
             if value_at_position != ".":
-                clauses.append("{}{}{}".format(value_at_position, row_index + 1, column_index + 1))
+                clauses.append("{}{}{}".format(row_index + 1, column_index + 1, value_at_position))
     return clauses
 
-def build_input_for_4x4(NUMBER_OF_FILES=9):
-    if not os.path.exists("input/4x4"):
-        os.makedirs('input/4x4')
+def build_input(rules_dimacs_file, sudoku_puzzles_file, target_folder_path, NUMBER_OF_FILES=10):
+    if not os.path.exists(target_folder_path):
+        os.makedirs(target_folder_path)
     
-    rules_dimacs_file = "documentation/sudoku-rules/sudoku-rules-4x4.txt"
-    sudoku_puzzles_file = "documentation/testsets/4x4.txt"
-
     final_number_of_variables = None
     final_number_of_clauses = None
 
@@ -46,7 +48,7 @@ def build_input_for_4x4(NUMBER_OF_FILES=9):
             clauses = from_sudoku_inline_to_clauses(line)
             puzzle_rules = list(map(lambda clause: "{} 0\n".format(clause), clauses))
         
-            with open("input/4x4/test{}.in".format(line_index), 'w') as f:
+            with open("{}/test{}.in".format(target_folder_path, line_index + 1), 'w') as f:
                 final_number_of_clauses = len(rules) + len(puzzle_rules)
                 f.write("p cnf {} {}\n".format(final_number_of_variables, final_number_of_clauses))
                 
@@ -56,8 +58,17 @@ def build_input_for_4x4(NUMBER_OF_FILES=9):
                 for puzzle_rule in puzzle_rules:
                     f.write(puzzle_rule)
 
-            if line_index > NUMBER_OF_FILES:
+            if line_index + 1 >= NUMBER_OF_FILES:
                 break
             
 if __name__ == "__main__":
-    build_input_for_4x4()
+    build_input(
+        rules_dimacs_file = "documentation/sudoku-rules/sudoku-rules-4x4.txt",
+        sudoku_puzzles_file = "documentation/testsets/4x4.txt",
+        target_folder_path = "input/4x4"
+    )
+    build_input(
+        rules_dimacs_file = "documentation/sudoku-rules/sudoku-rules-9x9.txt",
+        sudoku_puzzles_file = "documentation/testsets/damnhard.sdk.txt",
+        target_folder_path = "input/9x9"
+    )

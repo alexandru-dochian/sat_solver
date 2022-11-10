@@ -1,15 +1,11 @@
 # Sat Solver
 
-
-## Data
-Inputs are found in `input` folder.
-
 ## Run
 
 ```
 $ ./SAT.py -h
 
->    usage: SAT [-h] [-S STRATEGY] [input_file]
+>    usage: SAT [-h] [-S HEURISTIC] [input_file
 >
 >    General purpose SAT solver
 >
@@ -18,14 +14,14 @@ $ ./SAT.py -h
 >
 >    options:
 >    -h, --help   show this help message and exit
->    -S STRATEGY  1, 2 or 3. Defaults to 1
+>    -S HEURISTIC  1, 2 or 3
 
 ```
 
 ---
 Example:
 ```
-./SAT.py -S1 input/4x4/test0.in
+./SAT.py -S2 input/4x4/test1.in
 ```
 
 
@@ -45,8 +41,23 @@ p cnf 3 2
 2 3 -1 0 
 ```
 
+### Generate Input files
+
+ - Using information from `documentation` directory we create `input` directory
+ - Files in DIMACS CNF format will be created
+ - A generated input file is the concatenation between:
+    - Sudoku game rules
+    - Sudoku initial constraints
+    
+```
+./generate_input.py
+```
+
+## Graphs
+`Graphs.ipynb` shows how log files can be read.
+
 ## Work
 
- - [x] DP algorithm
- - [ ] Heuristic 1
- - [ ] Heuristic 2
+ - [x] DPLL algorithm
+ - [x] Heuristic 2
+ - [ ] Heuristic 3
