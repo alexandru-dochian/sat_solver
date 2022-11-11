@@ -1,8 +1,6 @@
 documentation/**/*.log
 documentation/**/*.out
-logs/*
+input/**/*.log
+input/**/*.out
 None.out
 None.out.log
-
-# Exceptions
-!logs/oqAWmPMOiX.log
