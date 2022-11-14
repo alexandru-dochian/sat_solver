@@ -116,6 +116,45 @@ def find_pure_literals(set_of_clauses):
 
     return pure_literals
 
+ 
+def find_max_occurance_variable(set_of_clauses):
+    literals_occurrences = dict()
+    literals_weights = dict()
+ 
+    for clause in set_of_clauses:
+        for literal in clause:
+ 
+            if literal in literals_occurrences:
+                literals_occurrences[literal] += 1
+            else:
+                literals_occurrences[literal] = 1
+ 
+         #   if literal in clause:
+        #        literals_weights[literal] += 2^(-len(clause))
+           
+    weights=[] #The two-sided Jeroslow-Wang (JW-TS) heuristic identifies the variable x with the largest sum J(x) + J(¬x)
+    for literal in literals_occurrences.keys:
+       
+#list(positive variables get_negated_literal(pos))
+ 
+sums=[]
+for pos_literal in positive_variables:
+    sums.append(literals_weights[pos_literal] + literals_weights[get_negated_literal(pos_literal)])
+    max_index(sums)
+   
+ 
+ 
+    most_occured_variable = max(literals_occurrences, key=literals_occurrences.get)
+    #most_occured_variable_neg = get_negated_literal(most_occured_variable)
+ 
+ 
+ 
+    return max(literals_occurrences, key=literals_occurrences.get)
+ 
+ 
+
+
+
 ###############################################################################
 ############### Branching #####################################################
 def choose_variable_and_order_of_branching(state, heuristic):
