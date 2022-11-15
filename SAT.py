@@ -8,6 +8,7 @@ import time
 import json
 import string
 import os
+import math
 
 GLOBAL_OVERVIEW = {
     "heuristic" : None,
@@ -90,6 +91,66 @@ def set_variable_value(state, variable, value):
     state["set_of_clauses"] = new_set_of_clauses
     return state
 
+
+def jeroslow_wang(lengths_of_clauses_occurrences):
+    result = 0
+    for clause_length in lengths_of_clauses_occurrences:
+        result += math.pow(2, -1 * clause_length)
+    return result
+
+def find_max_occurance_variable(state, two_sided = True):
+    not_assigned_variables = {k: v for k, v in state["variables"].items() if v is None}
+    not_assigned_variables = list(not_assigned_variables.keys())
+    
+    literals_occurrences = dict()
+    for clause in state["set_of_clauses"]:
+        for literal in clause:
+            if literal not in literals_occurrences:
+                literals_occurrences[literal] = []           
+            literals_occurrences[literal].append(len(clause))
+    print("literals_occurrences", literals_occurrences)
+
+    for literal in literals_occurrences:
+        literals_occurrences[literal] = jeroslow_wang(literals_occurrences[literal])
+    print("literals_occurrences", literals_occurrences)
+
+    chosen_variable = None
+    current_max_value = -math.inf
+    order_of_branching = (True, False)
+    for variable in not_assigned_variables:
+        if chosen_variable == None:
+            chosen_variable = variable
+        
+        negated_variable = get_negated_literal(variable)
+        
+        if variable not in literals_occurrences:
+            literals_occurrences[variable] = 0
+        
+        if negated_variable not in literals_occurrences:
+            literals_occurrences[negated_variable] = 0
+
+        positive_occurrences = literals_occurrences[variable]
+        negative_occurences = literals_occurrences[get_negated_literal(variable)]
+        
+        if two_sided:
+            if positive_occurrences + negative_occurences > current_max_value:
+                current_max_value = positive_occurrences + negative_occurences
+                chosen_variable = variable
+
+                if positive_occurrences >= negative_occurences:
+                    order_of_branching = (True, False)
+                else:
+                    order_of_branching = (False, True)
+        else:
+            if positive_occurrences > current_max_value:
+                current_max_value = positive_occurrences
+                chosen_variable = variable
+    
+    if two_sided:
+        return chosen_variable, order_of_branching
+    else:
+        return chosen_variable, (True, False)
+
 ###############################################################################
 ############### Unit clauses and pure literals ################################
 def find_literals_in_unit_clauses(set_of_clauses):
@@ -150,14 +211,25 @@ def choose_variable_and_order_of_branching(state, heuristic):
         not_assigned_variables = list(not_assigned_variables.keys())
         variable = random.choice(not_assigned_variables) if len(not_assigned_variables) > 0 else None 
     elif heuristic == 3:
-        """
-            TODO 
-            set `variable` and `order_of_branching` based on:
-                - `state`
-                - `heuristic`
-                - `GLOBAL_OVERVIEW`
-        """
-        raise Exception("Not implemented yet!")
+        # Tautologies check
+        set_of_clauses_without_tautologies = filter_out_tautologies(state["set_of_clauses"])
+        if set_of_clauses_without_tautologies != state["set_of_clauses"]:
+            state["set_of_clauses"] = set_of_clauses_without_tautologies
+
+        # Unit clauses check
+        literals_in_unit_clauses = find_literals_in_unit_clauses(state["set_of_clauses"])
+        if (len(literals_in_unit_clauses) != 0):
+            GLOBAL_OVERVIEW["unit_literals"] += len(literals_in_unit_clauses)
+            for literal_in_unit_clause in literals_in_unit_clauses:
+                set_variable_value(state, literal_in_unit_clause, True)
+        
+        # Pure literal check
+        pure_literals = find_pure_literals(state["set_of_clauses"])
+        if (len(pure_literals) != 0):
+            for pure_literal in pure_literals:
+                set_variable_value(state, pure_literal, True)
+
+        variable, order_of_branching = find_max_occurance_variable(state, two_sided=True)
     else:
         raise Exception("Invalid usage!")
 
@@ -329,7 +401,7 @@ def init():
     GLOBAL_OVERVIEW["input_file"] = input_file
     GLOBAL_OVERVIEW["heuristic"] = heuristic
     GLOBAL_OVERVIEW["start_time"] = time.time()
-    
+
     return state, heuristic
 
 def main():
@@ -479,9 +551,42 @@ def test_implementation():
         ["-666"],
     ])
     assert actual == expected, "Error!"
+    
+    # Test `find_max_occurance_variable` ######################################
+    #### Test 1 ---------------------------------------------------------------
+    expected_variable, expected_order_of_branching = "a", (False, True)
+    
+    actual_variable, actual_order_of_branching = find_max_occurance_variable({
+        "variables" : {"a" : None, "b" : None, "c": None},
+        "set_of_clauses": [
+            ["-a", "b", "c"],
+            ["-a", "b"],
+            ["a", "b"],
+        ]
+    }, two_sided=True)
 
+    print("actual_variable", actual_variable)
+    print("actual_order_of_branching", actual_order_of_branching)
+
+    assert actual_variable == expected_variable, "Error!"
+    assert actual_order_of_branching == expected_order_of_branching, "Error!"
+    #### Test 2 ---------------------------------------------------------------
+    expected_variable, expected_order_of_branching = "b", (True, False)
+    
+    actual_variable, actual_order_of_branching = find_max_occurance_variable({
+        "variables" : {"a" : True, "b" : None, "c": None},
+        "set_of_clauses": [
+            ["b", "c"],
+            ["b"],
+            ["b"],
+        ]
+    }, two_sided=True)
+    print("actual_variable", actual_variable)
+    print("actual_order_of_branching", actual_order_of_branching)
+    assert actual_variable == expected_variable, "Error!"
+    assert actual_order_of_branching == expected_order_of_branching, "Error!"
 ###############################################################################
 
 if __name__ == "__main__":
     test_implementation()
-    main()
+    # main()
