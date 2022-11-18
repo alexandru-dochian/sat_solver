@@ -19,7 +19,7 @@ GLOBAL_OVERVIEW = {
     "number_of_nodes" : 0,     
     "initial_state" : None,
     "final_state" : None,
-    "number_of_backtracks" : None
+    "number_of_backtracks" : 0,
 }
 
 ###############################################################################
