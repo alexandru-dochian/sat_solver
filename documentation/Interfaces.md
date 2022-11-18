@@ -5,7 +5,7 @@
     "input_file" : "",
     "start_time" : "",
     "puzzle_clauses" : "",
-    "branching_count" : "",
+    "number_of_nodes" : "",
     "initial_state" : "",
     "final_state" : "",
     "time_lapsed" : "",

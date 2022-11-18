@@ -26,7 +26,7 @@ def from_sudoku_inline_to_clauses(sudoku_inline):
                 clauses.append("{}{}{}".format(row_index + 1, column_index + 1, value_at_position))
     return clauses
 
-def build_input(rules_dimacs_file, sudoku_puzzles_file, target_folder_path, NUMBER_OF_FILES=10):
+def build_input(rules_dimacs_file, sudoku_puzzles_file, target_folder_path, NUMBER_OF_FILES=1000):
     if not os.path.exists(target_folder_path):
         os.makedirs(target_folder_path)
     
@@ -69,6 +69,11 @@ if __name__ == "__main__":
     )
     build_input(
         rules_dimacs_file = "documentation/sudoku-rules/sudoku-rules-9x9.txt",
-        sudoku_puzzles_file = "documentation/testsets/damnhard.sdk.txt",
+        sudoku_puzzles_file = "documentation/testsets/1000 sudokus.txt",
         target_folder_path = "input/9x9"
+    )
+    build_input(
+        rules_dimacs_file = "documentation/sudoku-rules/sudoku-rules-16x16.txt",
+        sudoku_puzzles_file = "documentation/testsets/16x16.txt",
+        target_folder_path = "input/16x16"
     )

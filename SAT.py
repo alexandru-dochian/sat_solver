@@ -16,9 +16,10 @@ GLOBAL_OVERVIEW = {
     "start_time" : None,
     "puzzle_clauses": None,
     "unit_literals" : 0,
-    "branching_count" : 0,     
+    "number_of_nodes" : 0,     
     "initial_state" : None,
     "final_state" : None,
+    "number_of_backtracks" : None
 }
 
 ###############################################################################
@@ -98,7 +99,7 @@ def jeroslow_wang(lengths_of_clauses_occurrences):
         result += math.pow(2, -1 * clause_length)
     return result
 
-def find_max_occurance_variable(state, two_sided = True):
+def find_max_occurrence_variable(state, two_sided = True):
     not_assigned_variables = {k: v for k, v in state["variables"].items() if v is None}
     not_assigned_variables = list(not_assigned_variables.keys())
     
@@ -229,14 +230,14 @@ def choose_variable_and_order_of_branching(state, heuristic):
             for pure_literal in pure_literals:
                 set_variable_value(state, pure_literal, True)
 
-        variable, order_of_branching = find_max_occurance_variable(state, two_sided=True)
+        variable, order_of_branching = find_max_occurrence_variable(state, two_sided=True)
     else:
         raise Exception("Invalid usage!")
 
     return variable, order_of_branching
 
 def davis_putnam(state, heuristic = None, depth = 0):
-    GLOBAL_OVERVIEW["branching_count"] += 1
+    GLOBAL_OVERVIEW["number_of_nodes"] += 1
     print("davis_putnam> depth={}, clauses={}".format(depth, len(state["set_of_clauses"])))
     state = deepcopy(state)
 
@@ -247,6 +248,7 @@ def davis_putnam(state, heuristic = None, depth = 0):
     
     # Empty clause check
     if contains_empty_clause(state["set_of_clauses"]):
+        GLOBAL_OVERVIEW["number_of_backtracks"] += 1
         return False
 
     # Split
@@ -552,11 +554,11 @@ def test_implementation():
     ])
     assert actual == expected, "Error!"
     
-    # Test `find_max_occurance_variable` ######################################
+    # Test `find_max_occurrence_variable` ######################################
     #### Test 1 ---------------------------------------------------------------
     expected_variable, expected_order_of_branching = "a", (False, True)
     
-    actual_variable, actual_order_of_branching = find_max_occurance_variable({
+    actual_variable, actual_order_of_branching = find_max_occurrence_variable({
         "variables" : {"a" : None, "b" : None, "c": None},
         "set_of_clauses": [
             ["-a", "b", "c"],
@@ -573,7 +575,7 @@ def test_implementation():
     #### Test 2 ---------------------------------------------------------------
     expected_variable, expected_order_of_branching = "b", (True, False)
     
-    actual_variable, actual_order_of_branching = find_max_occurance_variable({
+    actual_variable, actual_order_of_branching = find_max_occurrence_variable({
         "variables" : {"a" : True, "b" : None, "c": None},
         "set_of_clauses": [
             ["b", "c"],
@@ -589,4 +591,4 @@ def test_implementation():
 
 if __name__ == "__main__":
     test_implementation()
-    # main()
+    main()
