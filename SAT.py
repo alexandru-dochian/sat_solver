@@ -109,11 +109,9 @@ def find_max_occurrence_variable(state, two_sided = True):
             if literal not in literals_occurrences:
                 literals_occurrences[literal] = []           
             literals_occurrences[literal].append(len(clause))
-    print("literals_occurrences", literals_occurrences)
 
     for literal in literals_occurrences:
         literals_occurrences[literal] = jeroslow_wang(literals_occurrences[literal])
-    print("literals_occurrences", literals_occurrences)
 
     chosen_variable = None
     current_max_value = -math.inf
@@ -283,7 +281,7 @@ def get_initial_state(input_file):
             tokens = line.split(" ")
             stripped_tokens = list(map(lambda x: x.strip(), tokens[:-1])) 
             filtered_tokens = list(filter(lambda x: x != "", stripped_tokens)) 
-            filtered_tokens = list(map(lambda x: str(int(x)), filtered_tokens)) 
+            filtered_tokens = list(map(lambda x: str(x), filtered_tokens)) 
 
             if len(filtered_tokens) > 0:
                 clauses.append(filtered_tokens)
@@ -346,18 +344,19 @@ def print_sudoku(variables, title):
     print("{}:\n{}\n".format(title, sudoku_matrix_string))
 
 def save_to_file(logs_directory = "logs"):
-    with open("{}.out".format(GLOBAL_OVERVIEW["input_file"]), "w") as f:
-        final_state_variables = GLOBAL_OVERVIEW["final_state"]["variables"]
-        number_of_variables = len(final_state_variables.keys())
-        number_of_clauses = number_of_variables
-        f.write("p cnf {} {}\n".format(number_of_variables, number_of_clauses))
-        for variable in final_state_variables:
-            variable_value = final_state_variables[variable]
-            
-            if variable_value == True:
-                f.write("{} 0\n".format(variable))
-            else:
-                f.write("-{} 0\n".format(variable))
+    if GLOBAL_OVERVIEW["final_state"] is not None:
+        with open("{}.out".format(GLOBAL_OVERVIEW["input_file"]), "w") as f:
+            final_state_variables = GLOBAL_OVERVIEW["final_state"]["variables"]
+            number_of_variables = len(final_state_variables.keys())
+            number_of_clauses = number_of_variables
+            f.write("p cnf {} {}\n".format(number_of_variables, number_of_clauses))
+            for variable in final_state_variables:
+                variable_value = final_state_variables[variable]
+                
+                if variable_value == True:
+                    f.write("{} 0\n".format(variable))
+                else:
+                    f.write("-{} 0\n".format(variable))
 
     with open("{}.out.log".format(GLOBAL_OVERVIEW["input_file"]), "w") as f:
         f.write(json.dumps(GLOBAL_OVERVIEW))
@@ -567,9 +566,6 @@ def test_implementation():
         ]
     }, two_sided=True)
 
-    print("actual_variable", actual_variable)
-    print("actual_order_of_branching", actual_order_of_branching)
-
     assert actual_variable == expected_variable, "Error!"
     assert actual_order_of_branching == expected_order_of_branching, "Error!"
     #### Test 2 ---------------------------------------------------------------
@@ -583,8 +579,7 @@ def test_implementation():
             ["b"],
         ]
     }, two_sided=True)
-    print("actual_variable", actual_variable)
-    print("actual_order_of_branching", actual_order_of_branching)
+
     assert actual_variable == expected_variable, "Error!"
     assert actual_order_of_branching == expected_order_of_branching, "Error!"
 ###############################################################################
