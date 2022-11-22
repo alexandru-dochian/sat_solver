@@ -229,6 +229,26 @@ def choose_variable_and_order_of_branching(state, heuristic):
                 set_variable_value(state, pure_literal, True)
 
         variable, order_of_branching = find_max_occurrence_variable(state, two_sided=True)
+    elif heuristic == 4:
+        # Tautologies check
+        set_of_clauses_without_tautologies = filter_out_tautologies(state["set_of_clauses"])
+        if set_of_clauses_without_tautologies != state["set_of_clauses"]:
+            state["set_of_clauses"] = set_of_clauses_without_tautologies
+
+        # Unit clauses check
+        literals_in_unit_clauses = find_literals_in_unit_clauses(state["set_of_clauses"])
+        if (len(literals_in_unit_clauses) != 0):
+            GLOBAL_OVERVIEW["unit_literals"] += len(literals_in_unit_clauses)
+            for literal_in_unit_clause in literals_in_unit_clauses:
+                set_variable_value(state, literal_in_unit_clause, True)
+        
+        # Pure literal check
+        pure_literals = find_pure_literals(state["set_of_clauses"])
+        if (len(pure_literals) != 0):
+            for pure_literal in pure_literals:
+                set_variable_value(state, pure_literal, True)
+
+        variable, order_of_branching = find_max_occurrence_variable(state, two_sided=False)
     else:
         raise Exception("Invalid usage!")
 
@@ -386,12 +406,12 @@ def log():
 
 def parse_arguments():
     parser = argparse.ArgumentParser(prog='SAT', description="General purpose SAT solver")
-    parser.add_argument("-S", dest = "heuristic", type=int, help="1, 2 or 3. Defaults to 1")
+    parser.add_argument("-S", dest = "heuristic", type=int, help="1, 2, 3 or 4")
     parser.add_argument("input_file", nargs="?")
     arguments = parser.parse_args()
     
-    if arguments.heuristic not in [1, 2, 3]:
-        raise Exception("HEURISTIC should be 1, 2 or 3")
+    if arguments.heuristic not in [1, 2, 3, 4]:
+        raise Exception("HEURISTIC should be 1, 2, 3 or 4")
     return arguments.heuristic, arguments.input_file
 
 def init():
