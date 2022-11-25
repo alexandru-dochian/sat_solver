@@ -14,7 +14,7 @@ $ ./SAT.py -h
 >
 >    options:
 >    -h, --help   show this help message and exit
->    -S HEURISTIC  1, 2 or 3
+>    -S HEURISTIC  1, 2, 3 or 4
 
 ```
 
